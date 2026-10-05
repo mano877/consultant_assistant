@@ -1,0 +1,122 @@
+[
+  {
+    "institution": "Australian Technology Institute",
+    "course": "Master of Information Technology",
+    "location": "Melbourne",
+    "duration_months": 24,
+    "intake_months": ["February", "July"],
+    "tuition_aud_per_year": 36000,
+    "entry_requirements": {
+      "academic": "Bachelor degree in IT or related field",
+      "ielts_overall": 6.5,
+      "ielts_min_band": 6.0,
+      "pte_overall": 58
+    },
+    "tags": ["IT", "masters", "Melbourne", "computing", "data science"]
+  },
+  {
+    "institution": "Pacific University of Technology",
+    "course": "Bachelor of Computer Science",
+    "location": "Sydney",
+    "duration_months": 36,
+    "intake_months": ["February", "July"],
+    "tuition_aud_per_year": 32000,
+    "entry_requirements": {
+      "academic": "Year 12 equivalent with maths",
+      "ielts_overall": 6.0,
+      "ielts_min_band": 5.5,
+      "pte_overall": 50
+    },
+    "tags": ["IT", "bachelor", "Sydney", "computer science", "programming"]
+  },
+  {
+    "institution": "Melbourne Institute of Digital Innovation",
+    "course": "Master of Data Science",
+    "location": "Melbourne",
+    "duration_months": 18,
+    "intake_months": ["February", "July", "October"],
+    "tuition_aud_per_year": 38000,
+    "entry_requirements": {
+      "academic": "Bachelor degree with statistics/math background",
+      "ielts_overall": 6.5,
+      "ielts_min_band": 6.0,
+      "pte_overall": 58
+    },
+    "tags": ["IT", "data science", "Melbourne", "analytics", "machine learning"]
+  },
+  {
+    "institution": "Sydney Business & Technology College",
+    "course": "Graduate Diploma of Information Technology",
+    "location": "Sydney",
+    "duration_months": 12,
+    "intake_months": ["January", "April", "July", "October"],
+    "tuition_aud_per_year": 28000,
+    "entry_requirements": {
+      "academic": "Bachelor degree in any discipline",
+      "ielts_overall": 6.0,
+      "ielts_min_band": 5.5,
+      "pte_overall": 50
+    },
+    "tags": ["IT", "graduate diploma", "Sydney", "conversion", "career change"]
+  },
+  {
+    "institution": "Brisbane Technology University",
+    "course": "Master of Cybersecurity",
+    "location": "Brisbane",
+    "duration_months": 24,
+    "intake_months": ["February", "July"],
+    "tuition_aud_per_year": 34000,
+    "entry_requirements": {
+      "academic": "Bachelor degree in IT or related field",
+      "ielts_overall": 6.5,
+      "ielts_min_band": 6.0,
+      "pte_overall": 58
+    },
+    "tags": ["IT", "cybersecurity", "Brisbane", "masters", "security"]
+  },
+  {
+    "institution": "Adelaide Digital Academy",
+    "course": "Master of Software Engineering",
+    "location": "Adelaide",
+    "duration_months": 24,
+    "intake_months": ["February", "July"],
+    "tuition_aud_per_year": 30000,
+    "entry_requirements": {
+      "academic": "Bachelor degree with programming experience",
+      "ielts_overall": 6.5,
+      "ielts_min_band": 6.0,
+      "pte_overall": 58
+    },
+    "tags": ["IT", "software engineering", "Adelaide", "masters", "development"]
+  },
+  {
+    "institution": "Gold Coast Institute of Technology",
+    "course": "Bachelor of Information Systems",
+    "location": "Gold Coast",
+    "duration_months": 36,
+    "intake_months": ["February", "July"],
+    "tuition_aud_per_year": 26000,
+    "entry_requirements": {
+      "academic": "Year 12 equivalent",
+      "ielts_overall": 6.0,
+      "ielts_min_band": 5.5,
+      "pte_overall": 50
+    },
+    "tags": ["IT", "information systems", "Gold Coast", "bachelor", "business IT"]
+  },
+  {
+    "institution": "Perth College of Digital Sciences",
+    "course": "Master of Artificial Intelligence",
+    "location": "Perth",
+    "duration_months": 24,
+    "intake_months": ["February", "July"],
+    "tuition_aud_per_year": 37000,
+    "entry_requirements": {
+      "academic": "Bachelor degree in CS, IT, maths, or engineering",
+      "ielts_overall": 6.5,
+      "ielts_min_band": 6.0,
+      "pte_overall": 58
+    },
+    "tags": ["IT", "AI", "Perth", "masters", "artificial intelligence", "deep learning"]
+  }
+]

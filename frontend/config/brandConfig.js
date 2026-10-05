@@ -1,0 +1,41 @@
+export const brand = {
+  name: "GlobalPath Consulting",
+  shortName: "GlobalPath",
+  legalLine: "GlobalPath Consulting",
+  color: "#21483D",
+  colorDark: "#18382F",
+  nav: [
+    { label: "Home", href: "#home" },
+    { label: "Destinations", href: "#destinations" },
+    { label: "Services", href: "#services" },
+    { label: "About", href: "#about" },
+  ],
+  hero: {
+    eyebrow: "AUSTRALIA & BEYOND",
+    headline: "Study abroad with clarity and confidence.",
+    sub: "Personalised guidance for university applications, course selection and your journey to Australia.",
+    primaryCta: "Explore Your Options",
+    secondaryCta: "Speak With an Adviser",
+  },
+  ctaSection: {
+    headline: "Your study journey starts with the right conversation.",
+    sub: "Explore your options with GlobalPath.",
+    primaryCta: "Talk to an Adviser",
+  },
+  footer: { description: "Thoughtful guidance. A world of possibility." },
+  chat: {
+    name: "GlobalPath Student Adviser",
+    tagline: "Digital guidance, at your pace",
+    bubbleLabel: "Ask our Student Adviser",
+    welcomeGreeting: "Welcome to GlobalPath.",
+    welcomeBody: "Tell me what you're considering, and I'll help you explore your study options.",
+    welcomePrompt: "A good place to begin",
+    knowledgeNote: "Digital guidance · A conversation to help you get started",
+    quickActions: [
+      { label: "Find a course", message: "I'd like help finding a suitable course. What would you need to know about me?", type: "message" },
+      { label: "Study in Australia", message: "I'd like to explore studying in Australia.", type: "message" },
+      { label: "Understand requirements", message: "What are the entry requirements for IT courses?", type: "message" },
+      { label: "Talk to an adviser", type: "lead" },
+    ],
+  },
+};
