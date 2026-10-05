@@ -1,284 +1,208 @@
-# Achievement Education & Visa Services — Demo AI Chatbot
+# Education Consultancy AI Assistant Demo
 
-A conversational AI student-assistant chatbot for qualification and lead generation. Built for a pitch demo — all data is dummy and can be swapped without touching application logic.
+A full-stack AI-powered student enquiry and lead qualification demo for education consultancies, using an Australian study consultancy scenario. It combines a responsive consultancy website with a conversational assistant that helps visitors explore demo course information and request a consultation.
 
-## Stack
+**GlobalPath Consulting is the fictional brand used in the demo UI.** This project is not built for, affiliated with, or endorsed by a specific real consultancy.
 
-| Layer | Technology |
-|---|---|
-| API framework | FastAPI (Python 3.12) |
-| LLM | Groq API via `langchain-groq` (Llama 3.3 70B) |
-| Database | PostgreSQL (Neon) via SQLAlchemy |
-| Session state | In-memory Python dict (no persistence across restarts) |
+## Key features
 
-## Project Structure
+- AI student enquiry assistant with session-based conversation context.
+- Grounded responses rendered from the supplied FAQ and provider dataset, with a fallback when information is unavailable.
+- Course/provider guidance based on study interests, location, and available English-test information.
+- Student qualification flow covering education, course preferences, English tests, location, budget, intake, and contact details.
+- Consultation form and persistent lead capture linked to the chat session.
+- Separate budget and intake extraction, including common month/year and relative intake expressions.
+- Server-calculated `LOW_INTENT`, `MEDIUM_INTENT`, and `HIGH_INTENT` lead status.
+- Protected admin lead-list endpoint using a backend bearer token.
+- Responsive consultancy website with Sydney, Melbourne, Brisbane, and Adelaide destination sections.
+- Restricted Markdown rendering, request timeouts, and a Retry flow for chat failures.
 
-```
-achievement-demo-bot/
-├── main.py                          # FastAPI app entry point
-├── requirements.txt                 # Python dependencies
-├── .env                             # Secrets (not committed)
+## Tech stack
+
+| Area | Current implementation |
+| --- | --- |
+| Frontend | Next.js 16 App Router, React 19, JavaScript/JSX |
+| Styling and images | Custom CSS, Tailwind CSS 4/PostCSS, Next.js Image |
+| Chat formatting | `react-markdown` and `remark-gfm` |
+| Backend | Python 3.12+, FastAPI, Uvicorn, Pydantic 2, `email-validator` |
+| LLM integration | Groq through LangChain and `langchain-groq`; currently configured for `openai/gpt-oss-120b` |
+| Persistence | PostgreSQL, using Neon for the demo database; SQLAlchemy 2 and `psycopg2-binary` |
+| Migrations | Alembic |
+| Configuration | Environment variables and `python-dotenv` |
+| Verification | pytest, FastAPI TestClient/HTTPX, Node.js built-in test runner, ESLint |
+| Dependency management | `pyproject.toml` / `uv.lock`, `requirements.txt`, npm / `package-lock.json` |
+
+## How it works
+
+1. The frontend generates a session ID automatically and reuses it for the conversation and lead submission. Students never enter it manually.
+2. The backend extracts student details before matching records from the demo provider dataset.
+3. The LLM selects relevant references; factual response content is rendered from those records rather than unrestricted generated prose. Reference selection is still model-based and can be imperfect.
+4. The conversation gathers qualification details and offers a consultation form. The form can also be opened through the website's adviser buttons.
+5. Submitted leads are stored in PostgreSQL. The backend calculates their status from completed English-test evidence and intake timing: both signals produce `HIGH_INTENT`, one produces `MEDIUM_INTENT`, and neither produces `LOW_INTENT`. A budget amount alone is not intake timing.
+
+Budget and intake are stored separately. The combined `budget_intake` field remains for API compatibility. Relative intake wording is retained without guessing a year.
+
+Conversation state is held in backend process memory and is lost on restart; it is not shared across multiple workers. Lead records persist in the database. The browser session ID is retained for the mounted chat widget, not as a persistent visitor account.
+
+## Project structure
+
+```text
+.
+├── README.md
+├── .env.example                 # Backend variable template; no credentials
+├── main.py                      # FastAPI application and CORS configuration
+├── pyproject.toml
+├── requirements.txt
+├── uv.lock
+├── alembic.ini
+├── alembic/
+│   ├── env.py                   # Environment-based migration connection
+│   └── versions/                # Baseline and budget/intake revisions
 ├── app/
-│   ├── config.py                    # Loads env vars
-│   ├── database.py                  # SQLAlchemy engine + session
-│   ├── models.py                    # Lead ORM model
-│   ├── schemas.py                   # Pydantic request/response models
-│   ├── routes/
-│   │   ├── chat.py                  # POST /chat
-│   │   └── lead.py                  # POST /lead, GET /leads
-│   ├── services/
-│   │   ├── agent.py                 # LangChain Groq conversational agent
-│   │   ├── session_store.py         # In-memory session dict
-│   │   ├── escalation.py            # Pre-LLM escalation phrase detection
-│   │   └── provider_matcher.py      # Filter providers by student preferences
-│   └── data/
-│       ├── providers.json           # 8 dummy IT course entries
-│       ├── escalation_phrases.json  # 13 trigger phrases for escalation
-│       └── faq.json                 # 10 Q&A pairs
+│   ├── config.py
+│   ├── database.py
+│   ├── models.py                # Lead persistence model
+│   ├── schemas.py               # Request/response validation
+│   ├── routes/                  # Chat and lead endpoints
+│   ├── services/                # Agent, matching, intake, scoring, sessions, escalation
+│   └── data/                    # Demo providers, FAQs, and escalation phrases
+├── tests/
+│   ├── test_api.py
+│   ├── test_predeployment.py
+│   ├── test_intake.py
+│   ├── test_migrations.py
+│   └── manual_conversation.py
+└── frontend/
+    ├── app/                     # Page, layout, and global styles
+    ├── components/              # Website sections and chat/form components
+    ├── config/brandConfig.js    # Fictional UI branding and copy
+    ├── context/                 # Chat widget state
+    ├── lib/                     # API client and its regression tests
+    ├── public/images/           # Local hero and destination images
+    ├── package.json
+    ├── package-lock.json
+    └── next.config.mjs
 ```
 
-## Setup
+## Local setup
 
-### 1. Clone and install
+Prerequisites: Python 3.12 or later, Node.js 20.9 or later with npm, a PostgreSQL database (local or Neon), and Groq API access.
 
-```bash
-git clone <repo-url> && cd achievement-demo-bot
+### Backend
 
+From the repository root:
+
+```sh
 python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
 ```
 
-### 2. Create `.env`
+Activate the environment with `.venv\Scripts\Activate.ps1` in PowerShell, or `source .venv/bin/activate` on macOS/Linux. Then install dependencies:
 
-```env
-GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxx
-DATABASE_URL=postgresql://user:password@ep-xxxx.us-east-2.aws.neon.tech/dbname?sslmode=require
+```sh
+python -m pip install -r requirements.txt
 ```
 
-> Get a free Groq API key at [console.groq.com](https://console.groq.com).
-> Get a free Postgres database at [neon.tech](https://neon.tech).
+Alternatively, `uv sync --locked` installs the locked backend dependencies and default development dependencies; activate the resulting `.venv` before the commands below.
 
-### 3. Apply database migrations
+Copy the root `.env.example` to `.env` and configure the backend variables described below. Apply the migrations before starting the server:
 
-```bash
+```sh
 alembic upgrade head
-alembic current
-alembic history
-```
-
-Alembic reads `DATABASE_URL` from the same environment / `.env` as the backend.
-Revision `20261003_01` creates the legacy `leads` table on an empty database or
-adopts the existing table. Revision `20261003_02` adds nullable `budget` and
-`intake` string columns only when missing, preserving `budget_intake` and all
-existing data. Already-applied manual columns are validated and adopted; do not
-manually stamp or run the former raw SQL script.
-
-These adoption revisions require an online connection (no `--sql`). Automatic
-downgrade is deliberately blocked because it could delete data that predates
-Alembic; any rollback requires a reviewed data-preserving migration. Application
-startup behavior is unchanged, but run migrations before starting each release.
-
-### 4. Run the server
-
-```bash
 uvicorn main:app --reload
 ```
 
-The API will be available at `http://localhost:8000`. Interactive docs at `http://localhost:8000/docs`.
+The backend runs locally on port 8000. Interactive API documentation is available at `/docs`.
 
-## How It Works
+### Frontend
 
-```
-User sends message
-        │
-        ▼
-  ┌─────────────┐
-  │ /chat POST  │
-  └──────┬──────┘
-         │
-         ▼
-  ┌──────────────────┐     yes     ┌─────────────────────┐
-  │ Escalation check ├────────────►│ Fixed reply + continue│
-  │ (pre-LLM)        │            │ collecting lead info  │
-  └──────┬───────────┘            └─────────────────────┘
-         │ no
-         ▼
-  ┌──────────────────┐
-  │ LangChain Agent  │◄── session history + provider matches + FAQ
-  │ (Groq / Llama)   │
-  └──────┬───────────┘
-         │
-         ▼
-  ┌──────────────────┐
-  │ ChatResponse     │  reply + collected_fields + lead_ready
-  └──────────────────┘
-         │
-    lead_ready == true?
-         │
-    yes  │  no → wait for next message
-         ▼
-  ┌──────────────────┐
-  │ /lead POST       │  save to Postgres
-  └──────────────────┘
-```
+In a second terminal:
 
-**Qualification flow:** The agent converses naturally to collect 6 qualification fields + 3 contact fields. It never asks like a form — one question at a time, acknowledging what the student shares.
-
-**Provider matching:** Once `course_interest`, `preferred_location`, and `english_test_status` are collected, matching providers are injected into the LLM prompt as context for personalised recommendations.
-
-**Lead status inference:**
-- `HIGH_INTENT` — IELTS score provided + clear intake timing
-- `MEDIUM_INTENT` — one of the above present
-- `LOW_INTENT` — neither present yet
-
-## API Reference
-
-### `POST /chat`
-
-Send a message and get a conversational reply.
-
-**Request:**
-```json
-{
-  "session_id": "sess-abc-123",
-  "message": "I want to study cybersecurity in Brisbane"
-}
-```
-
-**Response:**
-```json
-{
-  "reply": "Great choice! Brisbane has some excellent cybersecurity programs...",
-  "collected_fields": {
-    "course_interest": "cybersecurity",
-    "preferred_location": "Brisbane",
-    "current_education": "Bachelor of Computer Science",
-    "english_test_status": "IELTS 6.5",
-    "budget_intake": null,
-    "budget_intake": null,
-    "current_country_status": null,
-    "name": null,
-    "email": null,
-    "phone_whatsapp": null
-  },
-  "lead_ready": false
-}
-```
-
-| Field | Description |
-|---|---|
-| `session_id` | Client-generated unique session identifier |
-| `message` | The user's message |
-| `reply` | The AI assistant's response |
-| `collected_fields` | Fields collected so far (null = not yet asked) |
-| `lead_ready` | `true` when all fields are collected and student shows interest |
-
-### `POST /lead`
-
-Save a qualified lead to the database. Only call this when `lead_ready` is `true`.
-
-**Request:**
-```json
-{
-  "session_id": "sess-abc-123",
-  "name": "Rahul Sharma",
-  "email": "rahul@example.com",
-  "phone_whatsapp": "+91-9876543210",
-  "course_interest": "Master of Cybersecurity",
-  "preferred_location": "Brisbane",
-  "current_education": "Bachelor of Computer Science",
-  "english_test_status": "IELTS 6.5 overall",
-  "budget_intake": "AUD 35k/year, starting July 2026",
-  "current_country_status": "Currently in India, student visa",
-  "lead_status": "HIGH_INTENT"
-}
-```
-
-**Response:** Returns the created lead with `id` and `created_at` timestamp.
-
-### `GET /leads`
-
-List all captured leads (for demo review).
-
-**Response:** Array of lead objects, ordered by most recent first.
-
-### `GET /health`
-
-Health check endpoint.
-
-**Response:** `{ "status": "ok" }`
-
-## Escalation
-
-Certain phrases trigger an automatic escalation response before the LLM is called. These include "visa refused", "complex case", "onshore application", etc. When triggered:
-
-- The user gets a fixed response noting a consultant will follow up
-- Lead info collection continues as normal
-- The conversation remains in session history for context
-
-Trigger phrases are defined in `app/data/escalation_phrases.json`.
-
-## Customising Data
-
-All domain-specific data lives in `app/data/`:
-
-| File | What it controls |
-|---|---|
-| `providers.json` | Course/institution data for provider matching |
-| `escalation_phrases.json` | Trigger phrases for consultant escalation |
-| `faq.json` | FAQ knowledge base the agent references |
-
-To swap in real data, replace the JSON files — no code changes needed.
-
-## Notes
-
-- This is a **demo** — lead review requires a backend admin token; rate limiting is not implemented.
-- Session state is **in-memory** — lost on server restart
-- `GET /leads` requires `Authorization: Bearer <LEADS_ADMIN_TOKEN>`; missing configuration fails closed.
-- The LLM is called on every `/chat` request — watch your Groq usage during demos
-
-## Pre-deployment configuration and verification
-
-Backend `.env` (never copy the admin token into the frontend):
-
-```env
-LEADS_ADMIN_TOKEN=<random secret generated with secrets.token_urlsafe(32)>
-ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
-```
-
-Add the exact Vercel HTTPS origin to `ALLOWED_ORIGINS` when deploying; wildcards
-are rejected. CORS governs browser access, not API authentication. Review leads
-using a trusted API client with the bearer token over HTTPS outside localhost.
-Keep `GROQ_API_KEY` and `DATABASE_URL` on the backend. The frontend only needs
-`NEXT_PUBLIC_API_URL` pointing to the backend (HTTPS in production).
-
-Lead requests trim and validate required fields, email, phone, lengths, and the
-status enum. The server computes the stored status from completed English-test
-evidence and intake timing; budget alone does not count as timing. The existing
-`lead_status` request field remains accepted for compatibility.
-
-Chat extracts current-message fields before matching. Factual replies are
-rendered directly from supplied FAQ/provider records selected by a second model
-pass; generated draft prose never reaches the student. Invalid references fail
-closed, and missing information gets an information-gap response. Reference
-selection is model-based, so relevance and the demo data itself still need
-domain review before real admissions use. There are now three model
-calls per normal turn, each with a 15-second network timeout and no SDK retry.
-AI failures return HTTP 503 with `detail.code=AI_UNAVAILABLE` and
-`detail.retryable=true`, without internal error details. Frontend requests abort
-after 60 seconds and use the existing error/Retry UI.
-
-Verification commands:
-
-```text
-python -m pytest -p no:cacheprovider -q
+```sh
 cd frontend
-npm run lint
+npm ci
+```
+
+Create `frontend/.env.local` and configure `NEXT_PUBLIC_API_URL` to point to the local backend origin on port 8000, without a trailing slash. Then run:
+
+```sh
+npm run dev
+```
+
+The website runs locally on port 3000. Use a frontend origin allowed by the backend CORS configuration. The project currently has no frontend `.env.example`; the public API variable is read by `frontend/lib/api.js`.
+
+## Environment variables
+
+The root [.env.example](.env.example) is the source of truth for backend variable names. Configure values locally or through the hosting platform; never commit credentials.
+
+| Variable | Scope | Purpose |
+| --- | --- | --- |
+| `GROQ_API_KEY` | Backend | Authenticates requests to Groq |
+| `DATABASE_URL` | Backend | Connects SQLAlchemy and Alembic to PostgreSQL |
+| `LEADS_ADMIN_TOKEN` | Backend only | Authorizes lead-list access; missing configuration denies access |
+| `ALLOWED_ORIGINS` | Backend | Comma-separated exact frontend origins; local defaults are provided in the template, and wildcard origins are rejected |
+| `NEXT_PUBLIC_API_URL` | Frontend | Public backend base URL used by the browser API client |
+
+Only `NEXT_PUBLIC_API_URL` belongs in the frontend configuration. API credentials, database credentials, and the admin token must remain on the backend. Next.js public variables are included in the client build.
+
+## Database migrations
+
+Run from the repository root with the backend environment activated and the intended database configured:
+
+```sh
+alembic upgrade head
+alembic current
+alembic history
+alembic check
+```
+
+The revision chain is:
+
+- `20261003_01`: creates the legacy `leads` table on an empty database or adopts the existing table without rewriting rows.
+- `20261003_02`: adds nullable string columns for `budget` and `intake` only when missing. Compatible manually added columns are retained. The legacy `budget_intake` column remains intact.
+
+These adoption migrations require an online database connection and do not support `--sql`. Automatic downgrade is intentionally blocked to prevent deletion of pre-existing data; rollback requires a reviewed data-preserving migration. The earlier raw SQL migration has been replaced by Alembic. Run migrations before starting a release; application table creation does not replace schema migrations.
+
+## Main API endpoints
+
+| Method | Endpoint | Purpose | Access |
+| --- | --- | --- | --- |
+| `POST` | `/chat` | Accepts a session ID and message; returns a reply, collected fields, lead readiness, and optional lead status | Public |
+| `POST` | `/lead` | Validates and stores consultation details with the session ID; calculates lead status on the server | Public |
+| `GET` | `/leads` | Returns saved leads, newest first | Protected: bearer authentication using `LEADS_ADMIN_TOKEN` |
+| `GET` | `/health` | Returns application health status | Public |
+
+Consult `/docs` for the current request and response schemas. `GET /leads` returns unauthorized when the bearer token is missing or invalid, or the backend token is not configured. There is no admin dashboard or user account system.
+
+## Testing and verification
+
+Run the complete backend suite from the repository root:
+
+```sh
+python -m pytest -p no:cacheprovider -q
+```
+
+Backend tests use pytest, FastAPI TestClient/HTTPX, isolated in-memory SQLite databases, test-only configuration, and mocked LLM calls. Coverage includes API validation, lead access, CORS, grounding behavior, scoring, intake extraction, session behavior, retryable errors, and migration adoption/data preservation. These tests do not validate live Groq responses or replace PostgreSQL migration verification.
+
+Frontend automated regression tests do exist: `lib/api.test.mjs` and `components/chat/MessageBubble.test.mjs` use Node's built-in test runner. They check API transport/session IDs, timeout/error handling, Markdown rendering, and unsafe-content restrictions. They are focused regressions, not a browser end-to-end suite.
+
+From `frontend/`:
+
+```sh
 node --test lib/api.test.mjs components/chat/MessageBubble.test.mjs
+npm run lint
 npm run build
 ```
 
-The tests use an isolated in-memory database and a test-only admin token.
-Markdown rendering uses a restricted element allowlist, ignores raw HTML,
-blocks images and unsafe link schemes, and wraps long words and tables.
+For a local production preview, run `npm run start` after building. Verify the real conversation, consultation submission, responsive layout, and failure/retry flow separately with the configured backend.
+
+## Deployment architecture
+
+The Next.js frontend, FastAPI backend, and PostgreSQL database are separate services. The browser calls the backend; the backend calls Groq and persists leads in PostgreSQL. Neon can provide the hosted PostgreSQL database.
+
+A deployment needs the public backend origin configured in the frontend build, the exact frontend origin allowed by backend CORS, backend secrets configured privately, and Alembic migrations applied to the target database. Serve public traffic over HTTPS. Review dependency security advisories before release.
+
+The current in-memory conversation store assumes a single backend process. Rate limiting, persistent/shared conversation storage, and a full admin authentication system are not implemented. This repository demonstrates an enquiry workflow; it is not a production admissions platform.
+
+## Demo disclaimer
+
+GlobalPath Consulting is a fictional demo brand. The provider records, fees, entry requirements, FAQs, and recommendations are demonstration data, not official university/provider advice or verified current admissions or migration guidance. Campus imagery does not imply a partnership or endorsement. The assistant does not determine admission eligibility or guarantee a visa, offer, or outcome.
