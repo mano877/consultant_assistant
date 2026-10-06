@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Consultancy AI Assistant Frontend
 
-## Getting Started
+The Next.js frontend for a generic education-consultancy AI assistant demo, using an Australian study enquiry scenario. This is a demonstration project, not a real education consultancy.
 
-First, run the development server:
+## Stack and features
+
+- Next.js 16 App Router and React 19, with JavaScript, custom CSS, and Tailwind CSS 4.
+- Responsive consultancy landing page with Australian destination sections, optimized local images through `next/image`, and reduced-motion support.
+- Student Adviser chat with quick actions, Markdown and table rendering through `react-markdown` and `remark-gfm`, loading states, and error recovery with Retry.
+- Automatic conversation session IDs and a consultation lead form connected to the backend qualification flow.
+- ESLint 9 and Node.js built-in regression tests.
+
+## Local setup
+
+From the repository root:
+
+```bash
+cd frontend
+npm install
+```
+
+Create `.env.local` in this directory:
+
+```dotenv
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+`NEXT_PUBLIC_API_URL` is the base URL of the separately deployed FastAPI backend, without a trailing slash. The frontend calls its `/chat` and `/lead` endpoints. For local development, run the backend separately and allow the frontend origin in its CORS configuration.
+
+This variable is public and included in the browser bundle; never place secrets in it. Set it before building for production and rebuild when it changes.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [localhost:3000](http://localhost:3000). See the root README for backend setup.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Checks and production build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Run from `frontend/`:
 
-## Learn More
+```bash
+npm run lint
+node --test lib/api.test.mjs components/chat/MessageBubble.test.mjs
+npm run build
+npm run start
+```
 
-To learn more about Next.js, take a look at the following resources:
+The six regression tests cover API session payloads, errors, timeout/retry behavior, and safe Markdown rendering. They use mocked requests and server-rendered components; they are not browser end-to-end tests. `npm run start` serves the completed production build.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Demo scope
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Study guidance and provider information use demonstration data and are not official university or provider advice. AI responses, qualification, and lead storage are handled by the separate FastAPI backend.
