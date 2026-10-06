@@ -1,6 +1,8 @@
 function base(children, props) {
   return (
     <svg
+      aria-hidden="true"
+      focusable="false"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

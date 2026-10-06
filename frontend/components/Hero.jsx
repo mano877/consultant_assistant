@@ -18,7 +18,7 @@ export default function Hero() {
         <div className="hero-adviser"><span>Considering your options?</span><button onClick={() => openChat()}>Ask our digital student adviser <span aria-hidden="true">→</span></button></div>
       </div>
       <figure className="hero-image">
-        <EditorialImagePlaceholder src="/images/hero.png" alt="Three graduates in caps and gowns walking together outside a sandstone university building" position="52% 50%" sizes="(max-width: 600px) calc(100vw - 40px), (max-width: 1100px) 45vw, 575px" preload />
+        <EditorialImagePlaceholder src="/images/hero.png" alt="Three graduates in caps and gowns walking together outside a sandstone university building" position="52% 50%" sizes="(max-width: 350px) calc(100vw - 32px), (max-width: 600px) calc(100vw - 40px), (max-width: 850px) calc((100vw - 101px) / 2.05), (max-width: 1100px) calc((100vw - 108px) / 2.05), (max-width: 1360px) calc((100vw - 182px) / 2.05), 575px" preload />
         <figcaption><span>A WORLD OF POSSIBILITY</span><span>Your next chapter, thoughtfully planned.</span></figcaption>
       </figure>
     </section>

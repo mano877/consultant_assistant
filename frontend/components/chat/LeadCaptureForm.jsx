@@ -61,10 +61,10 @@ export default function LeadCaptureForm({ sessionId, collectedFields, leadStatus
   return (
     <div className="lead-form-panel" role="region" aria-label="Request a consultation">
       {success ? (
-        <div className="lead-success" role="status"><span aria-hidden="true">✓</span><h2>Request received.</h2><p>A GlobalPath adviser will get in touch with you shortly.</p></div>
+        <div className="lead-success" role="status"><span aria-hidden="true">✓</span><h2>Request received.</h2><p>Your details have been saved for demonstration.</p></div>
       ) : (
         <>
-          <div className="lead-form-heading"><div><h2>Ready for personalised guidance?</h2><p>Share a few details so a GlobalPath adviser can understand what you’re looking for.</p></div><button aria-label="Close form" onClick={onClose} className="chat-close form-close"><XIcon /></button></div>
+          <div className="lead-form-heading"><div><h2>Ready for personalised guidance?</h2><p>Share a few details to try the education consultancy demonstration.</p></div><button aria-label="Close form" onClick={onClose} className="chat-close form-close"><XIcon /></button></div>
           <form onSubmit={handleSubmit} className="consultation-form chat-scroll">
             {VISIBLE_FIELDS.map((field) => (
               <label key={field.key}>{field.label}<input required type={field.type} autoComplete={field.autoComplete} value={form[field.key]} onChange={(e) => setForm((prev) => ({ ...prev, [field.key]: e.target.value }))} /></label>

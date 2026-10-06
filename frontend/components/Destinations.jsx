@@ -16,7 +16,7 @@ export default function Destinations() {
         <div className="destination-grid">{destinations.map((city, index) => (
           <article className="destination" key={city.name}>
             <button className="destination-button" onClick={() => openChat(`I'd like to explore IT study options in ${city.name}. What information do you need from me?`)} aria-label={`Explore study options in ${city.name}`}>
-              <EditorialImagePlaceholder src={city.image} alt={city.alt} position={city.position} variant={city.variant} sizes="(max-width: 600px) calc((100vw - 56px) / 2), (max-width: 850px) calc((100vw - 96px) / 2), (max-width: 1360px) 22vw, 294px" />
+              <EditorialImagePlaceholder src={city.image} alt={city.alt} position={city.position} variant={city.variant} sizes="(max-width: 350px) calc((100vw - 44px) / 2), (max-width: 600px) calc((100vw - 56px) / 2), (max-width: 850px) calc((100vw - 96px) / 2), (max-width: 1100px) calc((100vw - 126px) / 4), (max-width: 1360px) calc((100vw - 184px) / 4), 294px" />
               <span className="destination-title"><span><small>0{index + 1} / AUSTRALIA</small><span className="destination-name">{city.name}</span></span><span className="destination-arrow" aria-hidden="true">↗</span></span>
             </button>
             <p>{city.caption}</p>

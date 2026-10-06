@@ -13,5 +13,5 @@ export default function ChatMessages({ messages, loading, error, onRetry, onQuic
   </div>;
 }
 function LeadPromptCard({ onOpen }) {
-  return <div className="lead-prompt"><h3>Ready for personalised guidance?</h3><p>Take the next step with a GlobalPath adviser.</p><button onClick={onOpen} className="button button-primary">Request a consultation <span aria-hidden="true">→</span></button></div>;
+  return <div className="lead-prompt"><h3>Ready for personalised guidance?</h3><p>Try the next step in this education consultancy demonstration.</p><button onClick={onOpen} className="button button-primary">Request a consultation <span aria-hidden="true">→</span></button></div>;
 }

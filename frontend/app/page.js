@@ -6,6 +6,7 @@ import Services from "@/components/Services";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/chat/ChatWidget";
+import SectionMotion from "@/components/SectionMotion";
 export default function Home() {
-  return <><a className="skip-link" href="#main-content">Skip to content</a><Header /><main id="main-content"><Hero /><Introduction /><Destinations /><Services /><CTASection /></main><Footer /><ChatWidget /></>;
+  return <><a className="skip-link" href="#main-content">Skip to content</a><Header /><main id="main-content"><Hero /><Introduction /><Destinations /><Services /><CTASection /></main><Footer /><ChatWidget /><SectionMotion /></>;
 }

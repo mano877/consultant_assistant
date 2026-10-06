@@ -9,9 +9,9 @@ export default function Header() {
   return (
     <header className="site-header">
       <div className="page-container header-inner">
-        <a className="wordmark" href="#home" aria-label="GlobalPath Consulting home">
-          <span className="brand-emblem" aria-hidden="true">G<span>↗</span></span>
-          <span>GlobalPath<small>CONSULTING</small></span>
+        <a className="wordmark" href="#home" aria-label="Consultancy AI Assistant home">
+          <span className="brand-emblem" aria-hidden="true">C<span>↗</span></span>
+          <span>Consultancy<small>AI ASSISTANT</small></span>
         </a>
         <nav className="desktop-nav" aria-label="Main navigation">
           {brand.nav.map(item => <a key={item.label} href={item.href}>{item.label}</a>)}

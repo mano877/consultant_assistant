@@ -1,7 +1,7 @@
 export const brand = {
-  name: "GlobalPath Consulting",
-  shortName: "GlobalPath",
-  legalLine: "GlobalPath Consulting",
+  name: "Consultancy AI Assistant",
+  shortName: "Consultancy AI Assistant",
+  legalLine: "Consultancy AI Assistant",
   color: "#21483D",
   colorDark: "#18382F",
   nav: [
@@ -19,16 +19,16 @@ export const brand = {
   },
   ctaSection: {
     headline: "Your study journey starts with the right conversation.",
-    sub: "Explore your options with GlobalPath.",
+    sub: "Explore your options with Consultancy AI Assistant.",
     primaryCta: "Talk to an Adviser",
   },
   footer: { description: "Thoughtful guidance. A world of possibility." },
   chat: {
-    name: "GlobalPath Student Adviser",
-    tagline: "Digital guidance, at your pace",
+    name: "Consultancy AI Assistant",
+    tagline: "Education consultancy demonstration",
     bubbleLabel: "Ask our Student Adviser",
-    welcomeGreeting: "Welcome to GlobalPath.",
-    welcomeBody: "Tell me what you're considering, and I'll help you explore your study options.",
+    welcomeGreeting: "Welcome to Consultancy AI Assistant.",
+    welcomeBody: "This is a generic demonstration for education consultancies. Tell me what you're considering to explore the demo study options.",
     welcomePrompt: "A good place to begin",
     knowledgeNote: "Digital guidance · A conversation to help you get started",
     quickActions: [

@@ -99,7 +99,7 @@ export default function ChatWidget() {
         id: nextId(),
         role: "assistant",
         text: success
-          ? "✓ Request received. A GlobalPath advisor will get in touch with you shortly."
+          ? "✓ Demo request received. Your details have been saved for demonstration."
           : "Something went wrong submitting your details. Please try again.",
       },
     ]);
@@ -108,14 +108,14 @@ export default function ChatWidget() {
   return (
     <>
       {!isOpen && (
-        <button onClick={toggleChat} className="adviser-launcher" aria-label="Open GlobalPath Student Adviser">
-          <span className="launcher-mark" aria-hidden="true">G</span>
+        <button onClick={toggleChat} className="adviser-launcher" aria-label="Open Consultancy AI Assistant">
+          <span className="launcher-mark" aria-hidden="true">C</span>
           <span className="launcher-copy"><small>Need help choosing your next step?</small><strong>{brand.chat.bubbleLabel}</strong></span>
           <span className="launcher-arrow" aria-hidden="true">↗</span>
         </button>
       )}
       {isOpen && (
-        <section className="chat-widget" aria-label="GlobalPath Student Adviser">
+        <section className="chat-widget" aria-label="Consultancy AI Assistant">
           <ChatHeader onClose={closeChat} />
           <div className="chat-body">
             <ChatMessages messages={messages} loading={loading} error={error} onRetry={handleRetry} onQuickAction={handleQuickAction} onOpenLeadForm={openLeadForm} messagesEndRef={messagesEndRef} />
