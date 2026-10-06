@@ -121,7 +121,6 @@ export default function ChatWidget() {
             <ChatMessages messages={messages} loading={loading} error={error} onRetry={handleRetry} onQuickAction={handleQuickAction} onOpenLeadForm={openLeadForm} messagesEndRef={messagesEndRef} />
             {leadFormOpen && <LeadCaptureForm sessionId={sessionId.current} collectedFields={collectedFields} leadStatus={leadStatus} onClose={closeLeadForm} onSubmitted={handleLeadSubmitted} />}
           </div>
-          <p className="chat-note">{brand.chat.knowledgeNote}</p>
           <ChatInput onSend={sendMessage} disabled={loading} />
         </section>
       )}
