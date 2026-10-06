@@ -12,6 +12,38 @@ from app.services.provider_matcher import match_providers
 from app.services.session_store import get_session
 
 
+@pytest.mark.parametrize("greeting", ["hi", "Hello!", "  HEY there!  ", "Good morning", "hi 👋", "hello there", "greetings"])
+def test_greeting_welcomes_without_qualification_or_field_changes(greeting):
+    sid = _fresh_session_id()
+    session = get_session(sid)
+    session["collected_fields"]["course_interest"] = "IT"
+    before = dict(session["collected_fields"])
+    with patch("app.services.agent._llm") as llm:
+        result = run_agent(sid, greeting)
+    llm.invoke.assert_not_called()
+    assert "Hi! I'm the Consultancy AI Assistant." in result["reply"]
+    assert result["reply"].endswith("What would you like to know?")
+    assert session["collected_fields"] == before
+    assert result["collected_fields"] == {"course_interest": "IT"}
+    assert result["lead_ready"] is False
+    assert result["lead_status"] is None
+    assert session["history"] == [
+        {"role": "user", "content": greeting},
+        {"role": "assistant", "content": result["reply"]},
+    ]
+
+
+@pytest.mark.parametrize("message", ["Hi, recommend an IT course", "Hello, am I eligible?", "Hey, match courses for me", "I finished a bachelor degree"])
+def test_substantive_messages_keep_qualification_and_grounding(message):
+    sid = _fresh_session_id()
+    with patch("app.services.agent._llm") as llm:
+        llm.invoke.side_effect = [MagicMock(content="{}"), MagicMock(content="Draft"),
+                                 MagicMock(content='{"supported": true, "provider_indices": [], "faq_indices": []}')]
+        result = run_agent(sid, message)
+    assert llm.invoke.call_count == 3
+    assert "What is your highest completed qualification?" in result["reply"]
+
+
 def valid_lead():
     return dict(session_id=_fresh_session_id(), name="Test Student", email="test@example.com",
                 phone_whatsapp="+61 (400) 000-000", course_interest="Master of IT",
@@ -122,7 +154,7 @@ def test_ai_failure_is_retryable_and_does_not_commit_partial_turn(failure_at):
     responses[failure_at] = RuntimeError("secret internal error")
     with patch("app.services.agent._llm") as llm:
         llm.invoke.side_effect = responses
-        response = client.post("/chat", json={"session_id": sid, "message": "Hello"})
+        response = client.post("/chat", json={"session_id": sid, "message": "Help me choose a course"})
     assert response.status_code == 503
     assert response.json()["detail"]["retryable"] is True
     assert "secret internal" not in response.text
@@ -146,5 +178,5 @@ def test_invalid_reference_is_rejected_not_rendered():
     with patch("app.services.agent._llm") as llm:
         llm.invoke.side_effect = [MagicMock(content="{}"), MagicMock(content="Hello"),
                                  MagicMock(content='{"supported": true, "provider_indices": [999]}')]
-        response = client.post("/chat", json={"session_id": _fresh_session_id(), "message": "Hello"})
+        response = client.post("/chat", json={"session_id": _fresh_session_id(), "message": "Recommend an IT course"})
     assert response.status_code == 503

@@ -13,6 +13,7 @@ export default function MessageBubble({ role, text }) {
 
   return (
     <div className={`message-row ${isUser ? "message-user" : "message-assistant"}`}>
+      {!isUser && <span className="chat-monogram message-avatar" aria-hidden="true">C</span>}
       <div
         className="message-bubble [overflow-wrap:anywhere]"
         style={isUser ? { backgroundColor: brand.color } : undefined}

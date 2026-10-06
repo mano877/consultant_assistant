@@ -8,7 +8,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_groq import ChatGroq
 
 from app.config import GROQ_API_KEY
-from app.services.provider_matcher import match_providers
+from app.services.provider_matcher import match_providers, prefers_postgraduate
 from app.services.lead_scoring import infer_lead_status as _infer_lead_status
 from app.services.session_store import get_session
 from app.services.intake import merge_budget_intake
@@ -31,18 +31,18 @@ _llm = ChatGroq(
 def _build_system_prompt() -> str:
     return (
         "You are a warm, knowledgeable education consultant at "
-        "Consultancy AI Assistant — a generic demonstration for education "
+        "Consultancy AI Assistant a generic demonstration for education "
         "consultancies, not a real consultancy. You care about helping students "
         "find the right path.\n\n"
         "## YOUR PERSONA\n"
         "- Speak like a trusted advisor, not a chatbot.\n"
-        "- Be encouraging but honest — never overpromise.\n"
+        "- Be encouraging but honest never overpromise.\n"
         "- Use the student's name once they share it.\n"
         "- Keep replies concise (2-4 sentences) unless explaining something "
         "important.\n\n"
         "## YOUR GOAL\n"
         "Have a natural conversation to understand the student's background "
-        "and aspirations. Collect these fields gradually — do NOT ask for "
+        "and aspirations. Collect these fields gradually do NOT ask for "
         "everything at once like a form:\n"
         "- current_education (highest completed qualification)\n"
         "- course_interest (what they want to study)\n"
@@ -50,7 +50,7 @@ def _build_system_prompt() -> str:
         "- preferred_location (Australian city/state preference)\n"
         "- budget_intake (budget range and preferred start date)\n"
         "- current_country_status (where they are now and visa situation)\n\n"
-        "Also collect contact details — but only AFTER you've provided "
+        "Also collect contact details but only AFTER you've provided "
         "value (answered a question or given a recommendation). Ask for "
         "name, email, and phone/WhatsApp as a natural next step.\n\n"
         "## HOW TO COLLECT FIELDS\n"
@@ -62,7 +62,7 @@ def _build_system_prompt() -> str:
         "much can you spend'.\n"
         "- For English tests: if they haven't taken one, reassure them "
         "that options exist and mention PTE as an alternative to IELTS.\n\n"
-        "## FACTUAL GROUNDING — REQUIRED\n"
+        "## FACTUAL GROUNDING REQUIRED\n"
         "Use ONLY the supplied FAQ and MATCHED PROVIDERS records for factual claims. "
         "Never use outside knowledge, student assertions, or previous assistant replies "
         "as evidence for institutions, courses, locations, fees, entry or English "
@@ -123,6 +123,9 @@ _EXTRACTION_SYSTEM_PROMPT = (
     + ". For each key, keep the existing value unless the student stated a "
     "new or updated value in the latest exchange — never invent a value "
     "that wasn't actually stated. Use null for anything still unknown. "
+    "current_education is the student's completed qualification; a completed BS/Bachelor's "
+    "degree is not a request to study another Bachelor. course_interest is the requested "
+    "future subject/course; preserve an explicitly requested undergraduate or postgraduate level. "
     "Extract budget and intake independently: budget contains only the stated "
     "amount/range/currency, intake contains only the student's intended study start "
     "timing verbatim. A budget update must not erase intake, or vice versa. "
@@ -173,7 +176,7 @@ def _extract_updated_fields(known_fields: dict, user_message: str) -> dict:
 
 QUALIFICATION_QUESTIONS = {
     "current_education": "What is your highest completed qualification?",
-    "course_interest": "What would you like to study?",
+    "course_interest": "Would you like me to compare these options by tuition, duration, and entry requirements?",
     "english_test_status": "Have you taken IELTS or PTE yet? If so, what score did you receive?",
     "preferred_location": "Which city would you prefer to study in?",
     "budget_intake": "What budget range and start date would work best for you?",
@@ -186,6 +189,12 @@ QUALIFICATION_QUESTIONS = {
 
 def _grounded_reply(reply: str, matches: list[dict], collected: dict, user_message: str = "") -> str:
     """Select references, then render facts from records, never from generated prose."""
+    faqs_available = FAQ_DATA
+    if prefers_postgraduate(collected.get("current_education"), collected.get("course_interest")):
+        # Exclude mixed undergraduate course/fee advice, not Bachelor entry requirements.
+        faqs_available = [faq for faq in FAQ_DATA if not re.search(
+            r"\bBachelor (?:of|programs)\b", faq["answer"], re.I
+        )]
     response = _llm.invoke([
         SystemMessage(content=(
             "You verify factual grounding and select references for the student's latest question. "
@@ -194,6 +203,10 @@ def _grounded_reply(reply: str, matches: list[dict], collected: dict, user_messa
             "providers), faq_indices (array of zero-based indices into faq), format "
             "(table or list). supported is false if the requested facts are not in the "
             "records. Select only records that directly answer the latest question, "
+            "For broad graduate-options enquiries, the matched postgraduate providers "
+            "are relevant related-field options, not claims of eligibility; select from "
+            "them even when the completed degree has a different course title or no "
+            "preferred city has been supplied. "
             "at most two providers and one FAQ. For contact details, greetings, and "
             "qualification answers, use supported=true and empty arrays. Never use "
             "a general FAQ to answer a specific unlisted provider's fees, requirements, "
@@ -203,7 +216,7 @@ def _grounded_reply(reply: str, matches: list[dict], collected: dict, user_messa
             "only if requested. Do not generate any response prose or new facts."
         )),
         HumanMessage(content=json.dumps({
-            "faq": FAQ_DATA, "providers": matches, "student": collected,
+            "faq": faqs_available, "providers": matches, "student": collected,
             "latest_question": user_message, "draft": reply,
         })),
     ])
@@ -220,9 +233,9 @@ def _grounded_reply(reply: str, matches: list[dict], collected: dict, user_messa
     parts = []
     if selection["supported"]:
         providers = selected_records("provider_indices", matches, 2)
-        faqs = selected_records("faq_indices", FAQ_DATA, 1)
+        faqs = selected_records("faq_indices", faqs_available, 1)
         if providers:
-            parts.append("Here's what our available demo records list:")
+            parts.append("Based on the available information, here are some options you could explore:")
             if selection.get("format") == "table":
                 parts.append("| Institution | Course | Location | Tuition (AUD/year) |\n| --- | --- | --- | --- |\n" + "\n".join(
                     f"| {p['institution']} | {p['course']} | {p['location']} | {p['tuition_aud_per_year']:,} |"
@@ -243,7 +256,7 @@ def _grounded_reply(reply: str, matches: list[dict], collected: dict, user_messa
                     f"- Intakes: {', '.join(provider['intake_months'])}."
                 )
         if faqs:
-            parts.append("Our available reference information says:")
+            parts.append("Here's what may help:")
             parts.extend(faq["answer"] for faq in faqs)
         if not providers and not faqs:
             parts.append("Thanks for sharing that. I'm happy to help you explore your study options.")
@@ -274,6 +287,19 @@ def run_agent(session_id: str, user_message: str) -> dict:
     """
     session = get_session(session_id)
 
+    # Only pure greetings bypass qualification; mixed requests keep grounding.
+    if re.fullmatch(r"\s*(?:hi|hello|hey|hiya|howdy|greetings|good\s+(?:morning|afternoon|evening))(?:\s+there)?[\s!.,?👋]*", user_message, re.I):
+        welcome = (
+            "Hi! I'm the Consultancy AI Assistant. I can help with study destinations, "
+            "courses, eligibility, and the application process. What would you like to know?"
+        )
+        session["history"].extend([
+            {"role": "user", "content": user_message},
+            {"role": "assistant", "content": welcome},
+        ])
+        return {"reply": welcome, "collected_fields": _parse_lead_fields(session),
+                "lead_ready": False, "escalated": False, "lead_status": None}
+
     # ── Build messages for the LLM ────────────────────────────────────
     collected = _parse_lead_fields(session)
     collected.update(_extract_updated_fields(collected, user_message))
@@ -282,7 +308,9 @@ def run_agent(session_id: str, user_message: str) -> dict:
 
     # Inject provider matches if we have enough info
     matches = []
-    if collected.get("course_interest") and collected.get("preferred_location"):
+    if (collected.get("course_interest") and collected.get("preferred_location")) or prefers_postgraduate(
+        collected.get("current_education"), collected.get("course_interest")
+    ):
         ielts_score = None
         ets = collected.get("english_test_status", "")
         score = re.search(r"\bIELTS\s*(?:overall\s*)?(\d(?:\.\d)?)\b", ets, re.I)
@@ -293,6 +321,7 @@ def run_agent(session_id: str, user_message: str) -> dict:
             course_interest=collected.get("course_interest"),
             preferred_location=collected.get("preferred_location"),
             ielts_overall=ielts_score,
+            current_education=collected.get("current_education"),
         )
     system_prompt += (
         "\n\n## MATCHED PROVIDERS (empty means no matching record; do not invent alternatives):\n"

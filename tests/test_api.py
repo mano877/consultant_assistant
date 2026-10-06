@@ -250,7 +250,7 @@ class TestInputValidation:
         with patch("app.services.agent._llm", mock_llm):
             resp = client.post("/chat", json={
                 "session_id": _fresh_session_id(),
-                "message": "Hello",
+                "message": "Help me choose a course",
             })
         assert resp.status_code == 503
         body = resp.json()

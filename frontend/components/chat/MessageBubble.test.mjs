@@ -19,6 +19,11 @@ const transformed = swc.transformSync(source, {
 const { default: MessageBubble } = await import(`data:text/javascript;base64,${Buffer.from(transformed).toString("base64")}`);
 const render = (text, role = "assistant") => renderToStaticMarkup(React.createElement(MessageBubble, { role, text }));
 
+test("only assistant messages include the decorative header-style monogram", () => {
+  assert.match(render("Hello"), /class="chat-monogram message-avatar" aria-hidden="true">C<\/span>/);
+  assert.doesNotMatch(render("Hello", "user"), /message-avatar/);
+});
+
 test("assistant Markdown renders useful formatting and tables", () => {
   const html = render("**Bold**\n\n- First\n- Second\n\n[Safe](https://example.com)\n\n| A | B |\n| - | - |\n| C | D |");
   for (const tag of ["strong", "ul", "li", "table", "th", "td"]) assert.match(html, new RegExp(`<${tag}[ >]`));
