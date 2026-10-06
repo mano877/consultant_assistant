@@ -28,7 +28,7 @@ export const brand = {
     tagline: "Education consultancy demonstration",
     bubbleLabel: "Ask our Student Adviser",
     welcomeGreeting: "Welcome to Consultancy AI Assistant.",
-    welcomeBody: "This is a generic demonstration for education consultancies. Tell me what you're considering to explore the demo study options.",
+    welcomeBody: "An interactive demo showing how an AI adviser can support real student enquiries.",
     welcomePrompt: "A good place to begin",
     knowledgeNote: "Digital guidance · A conversation to help you get started",
     quickActions: [
