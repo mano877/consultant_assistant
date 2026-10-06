@@ -8,6 +8,7 @@ python-dotenv>=1.2.3
 sqlalchemy>=2.0.52
 alembic>=1.18,<2
 uvicorn>=0.52.4
+psycopg[binary]
 
 # Test dependencies
 pytest>=8.0.0
