@@ -1,8 +1,8 @@
-# Education Consultancy AI Assistant Demo
+# Consultancy AI Assistant
 
 A full-stack AI-powered student enquiry and lead qualification demo for education consultancies, using an Australian study consultancy scenario. It combines a responsive consultancy website with a conversational assistant that helps visitors explore demo course information and request a consultation.
 
-**GlobalPath Consulting is the fictional brand used in the demo UI.** This project is not built for, affiliated with, or endorsed by a specific real consultancy.
+**Consultancy AI Assistant is a generic demonstration for education consultancies, not a real consultancy.** This project is not built for, affiliated with, or endorsed by a specific real consultancy.
 
 ## Key features
 
@@ -205,4 +205,4 @@ The current in-memory conversation store assumes a single backend process. Rate 
 
 ## Demo disclaimer
 
-GlobalPath Consulting is a fictional demo brand. The provider records, fees, entry requirements, FAQs, and recommendations are demonstration data, not official university/provider advice or verified current admissions or migration guidance. Campus imagery does not imply a partnership or endorsement. The assistant does not determine admission eligibility or guarantee a visa, offer, or outcome.
+Consultancy AI Assistant is a generic demonstration for education consultancies, not a real consultancy. The provider records, fees, entry requirements, FAQs, and recommendations are demonstration data, not official university/provider advice or verified current admissions or migration guidance. Campus imagery does not imply a partnership or endorsement. The assistant does not determine admission eligibility or guarantee a visa, offer, or outcome.

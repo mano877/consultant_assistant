@@ -76,6 +76,15 @@ class TestHealth:
         assert resp.status_code == 200
         assert resp.json() == {"status": "ok"}
 
+    def test_health_head_returns_200_without_body(self):
+        resp = client.head("/health")
+        assert resp.status_code == 200
+        assert resp.content == b""
+        assert resp.headers["content-length"] == "0"
+
+    def test_health_post_remains_disallowed(self):
+        assert client.post("/health").status_code == 405
+
 
 # ── 2. Normal consultation question ───────────────────────────────────
 class TestNormalChat:

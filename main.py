@@ -2,7 +2,7 @@ import logging
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from app.database import Base, engine
 from app.config import ALLOWED_ORIGINS
@@ -11,7 +11,7 @@ from app.routes import chat, lead
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="GlobalPath Consulting — Demo Bot")
+app = FastAPI(title="Consultancy AI Assistant — Demo Bot")
 
 Base.metadata.create_all(bind=engine)
 
@@ -39,3 +39,8 @@ def global_exception_handler(request: Request, exc: Exception):
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.head("/health")
+def health_head():
+    return Response(status_code=200)
